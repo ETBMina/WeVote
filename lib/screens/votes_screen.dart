@@ -1,33 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:wevote/components/vote_card.dart';
+import 'package:wevote/utilities/constants.dart';
 
 class VotesScreen extends StatelessWidget {
-  List<Text> textList = [
-    Text(
-      '1',
-      style: TextStyle(fontSize: 100),
-    ),
-    Text(
-      '1',
-      style: TextStyle(fontSize: 100),
-    ),
-    Text(
-      '1',
-      style: TextStyle(fontSize: 100),
-    ),
-    Text(
-      '1',
-      style: TextStyle(fontSize: 100),
-    ),
-    Text(
-      '1',
-      style: TextStyle(fontSize: 100),
-    ),
-    Text(
-      '1',
-      style: TextStyle(fontSize: 100),
-    )
-  ];
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -47,7 +22,7 @@ class VotesScreen extends StatelessWidget {
           ),
         ],
         currentIndex: 0,
-        selectedItemColor: Colors.blueAccent,
+        selectedItemColor: kBottomNavigationBarSelectedItemColor,
         onTap: (int) {},
       ),
       body: SafeArea(
@@ -61,13 +36,13 @@ class VotesScreen extends StatelessWidget {
                 print('hello');
                 return Future<void>.value();
               },
-              collapsedHeight: 70,
+              collapsedHeight: kSliverAppBarCollapsedHeight,
               flexibleSpace: FlexibleSpaceBar(
                 centerTitle: true,
                 stretchModes: [StretchMode.fadeTitle],
                 title: Text(
                   'WeVote',
-                  style: TextStyle(fontSize: 40.0, color: Colors.blue[900]),
+                  style: kAppBarTitleTextStyle,
                 ),
               ),
               backgroundColor: Colors.white,

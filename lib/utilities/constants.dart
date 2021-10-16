@@ -23,3 +23,9 @@ const kCardPadding = EdgeInsets.symmetric(
   vertical: 8,
   horizontal: 25,
 );
+
+// VotesScreen constants:
+const kBottomNavigationBarSelectedItemColor = Colors.blueAccent;
+final kAppBarTitleTextStyle =
+    TextStyle(fontSize: 40.0, color: Colors.blue[900]);
+const kSliverAppBarCollapsedHeight = 70.0;
