@@ -2,7 +2,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:wevote/models/vote.dart';
 import 'package:intl/intl.dart';
+import 'package:wevote/utilities/constants.dart';
 
+// This is a test data
 var vote = Vote(
   isPublic: true,
   isSecretVote: false,
@@ -28,12 +30,10 @@ class VoteCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(
-        vertical: 8,
-        horizontal: 25,
-      ),
+      padding: kCardPadding,
       child: Card(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(kCardBorderRadius)),
         clipBehavior: Clip.antiAlias,
         child: InkWell(
           splashColor: Colors.blue.withAlpha(30),
@@ -43,24 +43,24 @@ class VoteCard extends StatelessWidget {
           child: Column(
             children: [
               Container(
-                color: Colors.blueAccent,
+                color: kCardContainerTitleBackgroundColor,
                 child: Padding(
-                  padding: const EdgeInsets.all(8.0),
+                  padding: const EdgeInsets.all(kCardTitlePadding),
                   child: Center(
                     child: Text(
                       vote.title,
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
-                        fontSize: 20,
-                        color: Colors.white,
+                        fontSize: kCardTitleFontSize,
+                        color: kCardTitleTextColor,
                       ),
                     ),
                   ),
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.all(20.0),
+                padding: const EdgeInsets.all(kCardBodyPadding),
                 child: Column(
                   children: [
                     Row(
@@ -75,11 +75,7 @@ class VoteCard extends StatelessWidget {
                                 children: [
                                   Text(
                                     'Created By:  ',
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 17,
-                                      color: Colors.blueAccent,
-                                    ),
+                                    style: kCardHeadingsTextStyle,
                                     textAlign: TextAlign.left,
                                   ),
                                   Expanded(
@@ -87,10 +83,7 @@ class VoteCard extends StatelessWidget {
                                       '${vote.createdByEmail}',
                                       maxLines: 1,
                                       overflow: TextOverflow.ellipsis,
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 15,
-                                      ),
+                                      style: kCardBodyTextStyle,
                                       textAlign: TextAlign.left,
                                     ),
                                   ),
@@ -100,19 +93,12 @@ class VoteCard extends StatelessWidget {
                                 children: [
                                   Text(
                                     'Expire Date: ',
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 17,
-                                      color: Colors.blueAccent,
-                                    ),
+                                    style: kCardHeadingsTextStyle,
                                     textAlign: TextAlign.left,
                                   ),
                                   Text(
                                     '${DateFormat("dd-MM-yyyy H:m").format(vote.expirationDateTime)}',
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 15,
-                                    ),
+                                    style: kCardBodyTextStyle,
                                     textAlign: TextAlign.left,
                                   ),
                                 ],
@@ -123,12 +109,12 @@ class VoteCard extends StatelessWidget {
                         Icon(
                           Icons.lock,
                           color: Colors.red[700],
-                          size: 35,
+                          size: kCardIconSize,
                         ),
                         Icon(
                           Icons.public,
                           color: Colors.blue[900],
-                          size: 35,
+                          size: kCardIconSize,
                         ),
                       ],
                     ),
