@@ -1,11 +1,27 @@
 import 'package:flutter/material.dart';
 import 'package:wevote/components/vote_card.dart';
+import 'package:wevote/models/current_vote_data.dart';
+import 'package:wevote/screens/vote_details_screen.dart';
 import 'package:wevote/utilities/constants.dart';
+import 'package:wevote/screens/create_vote_screen.dart';
+import 'package:provider/provider.dart';
+import 'package:wevote/models/user.dart';
 
 class VotesScreen extends StatelessWidget {
+  static const String id = 'votes_screen';
+
   @override
   Widget build(BuildContext context) {
+    // currentVoteData = CurrentVoteData.newVote(currentUser.email);
+    print('votes screen build tree');
     return Scaffold(
+      floatingActionButton: FloatingActionButton(
+        child: const Icon(Icons.add),
+        onPressed: () {
+          // currentVoteData.resetVoteData();
+          Navigator.pushNamed(context, CreateVoteScreen.id);
+        },
+      ),
       bottomNavigationBar: BottomNavigationBar(
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
@@ -33,7 +49,6 @@ class VotesScreen extends StatelessWidget {
               stretchTriggerOffset: 25,
               onStretchTrigger: () {
                 // Function callback for stretch
-                print('hello');
                 return Future<void>.value();
               },
               collapsedHeight: kSliverAppBarCollapsedHeight,
@@ -50,17 +65,37 @@ class VotesScreen extends StatelessWidget {
               expandedHeight: MediaQuery.of(context).size.height * 0.4,
               pinned: true,
             ),
-            SliverList(
-                delegate: SliverChildListDelegate([
-              VoteCard(),
-              VoteCard(),
-              VoteCard(),
-              VoteCard(),
-              VoteCard(),
-              VoteCard(),
-              VoteCard(),
-              VoteCard(),
-            ]))
+            Consumer2<User, CurrentVoteData>(
+                builder: (context, currentUser, currentVoteData, child) {
+              return SliverList(
+                delegate: SliverChildBuilderDelegate(
+                  (BuildContext context, int index) {
+                    String participatedVoteKey =
+                        currentUser.participatedInVotes.keys.elementAt(index);
+                    final participatedVote =
+                        currentUser.participatedInVotes.values.elementAt(index);
+                    return VoteCard(
+                      title: participatedVote.title,
+                      createdByEmail: participatedVote.createdByEmail,
+                      expirationDateTime: participatedVote.expirationDateTime,
+                      onCardPressedCallback: () {
+                        // currentVoteData = CurrentVoteData.newVote(currentUser.email);
+                        currentVoteData.voteId = participatedVoteKey;
+                        currentVoteData.currentVote = participatedVote;
+                        currentVoteData.changeTitle(participatedVote.title);
+                        currentVoteData.userSelection =
+                            currentUser.getUserVoteChoices(participatedVoteKey);
+                        // currentVoteData.notifyListenersAboutChanges();
+                        print(
+                            'currentVoteData in votes_screen: ${currentVoteData.currentVote.toJson()}');
+                        Navigator.pushNamed(context, VoteDetailsScreen.id);
+                      },
+                    );
+                  },
+                  childCount: currentUser.participatedInVotes.length,
+                ),
+              );
+            })
           ],
         ),
       ),
