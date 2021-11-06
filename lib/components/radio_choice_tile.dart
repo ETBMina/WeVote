@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wevote/models/current_vote_data.dart';
+import 'package:wevote/models/user/user.dart';
 
 class RadioChoiceTile extends StatefulWidget {
   final String choiceTitle;
@@ -31,7 +32,13 @@ class _RadioChoiceTileState extends State<RadioChoiceTile> {
             ? ''
             : currentVoteData.userSelection[0],
         onChanged: (String? selectedValue) {
+          // print(
+          //     'userChoices in RadioChoiceTile${Provider.of<User>(context, listen: false).userChoices}');
           currentVoteData.changeFirstSelection(selectedValue ?? '');
+          // print(
+          //     'currentVoteData userSelection in radio:${currentVoteData.userSelection}');
+          // print(
+          //     'userChoices in RadioChoiceTile${Provider.of<User>(context, listen: false).userChoices}');
         },
       );
     });

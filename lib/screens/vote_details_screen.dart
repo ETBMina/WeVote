@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:wevote/components/radio_choices_list.dart';
 import 'package:provider/provider.dart';
 import 'package:wevote/models/current_vote_data.dart';
-import 'package:wevote/models/user.dart';
+import 'package:wevote/models/user/user.dart';
 import 'package:wevote/utilities/constants.dart';
 import 'package:intl/intl.dart';
 import 'package:wevote/components/rounded_button.dart';
@@ -12,10 +12,13 @@ class VoteDetailsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer2<CurrentVoteData, User>(
-        builder: (context, currentVoteData, currentUser, child) {
-      print(
-          'currentVoteData in votedetails: ${currentVoteData.currentVote.toJson()}');
+    return Consumer<CurrentVoteData>(
+        builder: (context, currentVoteData, child) {
+      // print(
+      //     'currentVoteData in votedetails: ${currentVoteData.currentVote.toJson()}');
+      // print('userSelections in votedetails: ${currentVoteData.userSelection}');
+      // print(
+      //     'userChoices in votedetails${Provider.of<User>(context, listen: false).userChoices}');
       return Scaffold(
         body: Column(
           children: [
@@ -169,8 +172,8 @@ class VoteDetailsScreen extends StatelessWidget {
                     color: Colors.blueAccent,
                     text: 'Submit',
                     onPressed: () {
-                      currentUser.submitChoices(currentVoteData.voteId,
-                          currentVoteData.userSelection);
+                      // currentUser.submitChoices(currentVoteData.voteId,
+                      //     currentVoteData.userSelection);
                     }),
                 RoundedButton(
                     color: Colors.blueAccent, text: 'Cancel', onPressed: () {}),

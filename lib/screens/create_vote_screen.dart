@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wevote/models/current_vote_data.dart';
+import 'package:wevote/models/user/user_states.dart';
 import 'package:wevote/screens/add_choice_screen.dart';
 import 'package:wevote/components/new_choices_list.dart';
 import 'package:provider/provider.dart';
-import 'package:wevote/models/user.dart';
+import 'package:wevote/models/user/user.dart';
 import 'package:wevote/models/vote.dart';
 
 class CreateVoteScreen extends StatefulWidget {
@@ -30,7 +32,7 @@ class _CreateVoteScreenState extends State<CreateVoteScreen> {
     choices.add('value');
     // newVote = Vote.emailOnly(Provider.of<User>(context, listen: false).email);
     Provider.of<CurrentVoteData>(context, listen: false).currentVote =
-        Vote.emailOnly(Provider.of<User>(context, listen: false).email);
+        Vote.emailOnly(User.get(context).email);
     print('create vote screen init state');
     print(
         'currentVote = ${Provider.of<CurrentVoteData>(context, listen: false).currentVote.toJson()}');
@@ -38,8 +40,8 @@ class _CreateVoteScreenState extends State<CreateVoteScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer2<User, CurrentVoteData>(
-      builder: (context, currentUser, currentVoteData, child) {
+    return Consumer<CurrentVoteData>(
+      builder: (context, currentVoteData, child) {
         print('create vote screen build tree');
         // var newVote = currentVoteData.currentVote;
         return Scaffold(
@@ -64,24 +66,30 @@ class _CreateVoteScreenState extends State<CreateVoteScreen> {
                     // TODO Make the flex value constant
                     flex: 9,
                     // TODO Replace depricated widget
-                    child: RaisedButton(
-                      color: Theme.of(context).primaryColor,
-                      textColor: Colors.white,
-                      padding: const EdgeInsets.all(16),
-                      shape: new RoundedRectangleBorder(
-                          borderRadius: new BorderRadius.circular(8.0)),
-                      child: Text('Create'),
-                      onPressed: () {
-                        // Validate returns true if the form is valid, or false otherwise.
-                        if (_key.currentState!.validate()) {
-                          currentVoteData.currentVote.title =
-                              _titleController.value.text;
-                          currentVoteData.currentVote.description =
-                              _descriptionController.value.text;
-                          currentUser.createVote(
-                              'tempId', currentVoteData.currentVote);
-                          Navigator.pop(context);
-                        }
+                    child: BlocConsumer<User, UserStates>(
+                      listener: (context, userState) {},
+                      builder: (context, userState) {
+                        var currentUser = User.get(context);
+                        return RaisedButton(
+                          color: Theme.of(context).primaryColor,
+                          textColor: Colors.white,
+                          padding: const EdgeInsets.all(16),
+                          shape: new RoundedRectangleBorder(
+                              borderRadius: new BorderRadius.circular(8.0)),
+                          child: Text('Create'),
+                          onPressed: () {
+                            // Validate returns true if the form is valid, or false otherwise.
+                            if (_key.currentState!.validate()) {
+                              currentVoteData.currentVote.title =
+                                  _titleController.value.text;
+                              currentVoteData.currentVote.description =
+                                  _descriptionController.value.text;
+                              currentUser.createVote(
+                                  'tempId', currentVoteData.currentVote);
+                              Navigator.pop(context);
+                            }
+                          },
+                        );
                       },
                     ),
                   ),

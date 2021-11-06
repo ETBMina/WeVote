@@ -1,15 +1,20 @@
+import 'package:wevote/models/user/user_states.dart';
 import 'package:wevote/models/vote.dart';
 import 'package:flutter/foundation.dart';
 import 'package:firebase_auth/firebase_auth.dart' as auth;
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:bloc/bloc.dart';
 
 final _auth = auth.FirebaseAuth.instance;
 
-class User extends ChangeNotifier {
+class User extends Cubit<UserStates> {
   String fullName;
   String email;
   Map<String, Vote> participatedInVotes;
   Map<String, List<String>> userChoices;
+
+  static User get(context) => BlocProvider.of(context);
 
   User(
       {String? fullName,
@@ -18,13 +23,15 @@ class User extends ChangeNotifier {
       Map<String, List<String>>? userChoices})
       : participatedInVotes = participatedInVotes ?? {},
         userChoices = userChoices ?? {},
-        fullName = fullName ?? '';
+        fullName = fullName ?? '',
+        super(UserInitialState());
 
   User.empty()
       : email = '',
         fullName = '',
         participatedInVotes = {},
-        userChoices = {};
+        userChoices = {},
+        super(UserInitialState());
 
   Future<bool> register(
       {required String email,
@@ -39,7 +46,13 @@ class User extends ChangeNotifier {
       if (await updateUserName(fullName)) {
         this.fullName = fullName;
         // Create an empty record in user details collection for the new user, and return it's success status
-        return await createUserDetailsDocument();
+
+        if (await createUserDetailsDocument()) {
+          emit(UserRegisteredState());
+          return true;
+        } else {
+          return false;
+        }
       } else {
         return false;
       }
@@ -69,6 +82,7 @@ class User extends ChangeNotifier {
       this.fullName = userCredential.user!.displayName ?? '';
       // Load participatedInVotes and userChoices from the database
       await loadParticipatedInVotes();
+      emit(UserLoggedInState());
       return true;
     } on auth.FirebaseAuthException catch (e) {
       if (e.code == 'user-not-found') {
@@ -109,7 +123,8 @@ class User extends ChangeNotifier {
       // Add the new vote to the userChoices in the database
       addVoteToUserData();
       // Notify listeners about the new vote
-      notifyListeners();
+      // notifyListeners();
+      emit(UserCreateVoteState());
     } catch (e) {
       print(e);
     }
@@ -118,6 +133,7 @@ class User extends ChangeNotifier {
   // Add the local userChoices to the database
   Future<bool> addVoteToUserData() async {
     try {
+      print('addVoteToUserData called');
       CollectionReference userDetailsRef =
           FirebaseFirestore.instance.collection('user details');
       Map<String, Map<String, List<String>>> userChoices = {
@@ -154,6 +170,7 @@ class User extends ChangeNotifier {
       // name changes successfully
       // update the local user fullName
       this.fullName = fullName;
+      emit(UserUpdateDisplayNameState());
       return true;
     } else {
       // Name is not changed
@@ -197,18 +214,28 @@ class User extends ChangeNotifier {
     //   return Map<String, List<String>>.from(choices);
     // });
     // Looping the userChoices and get the vote data for each vote the user is participating in:
+
     for (var voteId in userChoices.keys) {
       DocumentSnapshot vote = await votesRef.doc(voteId).get();
       Map<String, dynamic> voteData = vote.data() as Map<String, dynamic>;
       participatedInVotes[voteId] = Vote.fromJson(voteData);
     }
+    emit(UserLoadParticipatedInVotesState());
   }
 
   Future<void> submitChoices(String voteId, List<String> userSelections) async {
+    print('submitChoices called');
+    // Sort the user selections to be used for comparison with old selection
+    // userSelections.sort();
+    Set<String> newChoices =
+        userSelections.toSet().difference(userChoices[voteId]!.toSet());
+    Set<String> removedChoices =
+        userChoices[voteId]!.toSet().difference(userSelections.toSet());
     // update local user choices
-    userChoices[voteId] = userSelections;
+    // userChoices[voteId] = userSelections;
     // update database user choices
-    await addVoteToUserData();
+    // await addVoteToUserData();
+    emit(UserSubmitChoicesState());
   }
 
   // UnmodifiableListView<Vote> get votes {
