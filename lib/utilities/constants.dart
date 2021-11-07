@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 
+// This is the width of the emulator the app designed on
+const kBestWidth = 415.0;
+
 //Login screen constants:
 const kTextFieldDecoration = InputDecoration(
   hintText: 'Hint text',
