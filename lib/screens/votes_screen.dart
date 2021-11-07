@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wevote/components/vote_card.dart';
-import 'package:wevote/models/current_vote_data.dart';
+import 'package:wevote/models/current_vote_data/current_vote_data.dart';
+import 'package:wevote/models/current_vote_data/current_vote_data_states.dart';
 import 'package:wevote/models/user/user_states.dart';
 import 'package:wevote/screens/vote_details_screen.dart';
 import 'package:wevote/utilities/constants.dart';
@@ -67,61 +68,50 @@ class VotesScreen extends StatelessWidget {
               expandedHeight: MediaQuery.of(context).size.height * 0.4,
               pinned: true,
             ),
-            Consumer<CurrentVoteData>(
-                builder: (context, currentVoteData, child) {
-              print('votes list rebuilt');
-              return BlocConsumer<User, UserStates>(
+            MultiBlocListener(
+              listeners: [
+                BlocListener<User, UserStates>(
                   listener: (context, userState) {},
-                  builder: (context, userState) {
-                    User currentUser = User.get(context);
-                    return SliverList(
-                      delegate: SliverChildBuilderDelegate(
-                        (BuildContext context, int index) {
-                          String participatedVoteKey = currentUser
-                              .participatedInVotes.keys
-                              .elementAt(index);
-                          final participatedVote = currentUser
-                              .participatedInVotes.values
-                              .elementAt(index);
-                          return VoteCard(
-                            title: participatedVote.title,
-                            createdByEmail: participatedVote.createdByEmail,
-                            expirationDateTime:
-                                participatedVote.expirationDateTime,
-                            onCardPressedCallback: () {
-                              print('on vote pressed called');
-                              currentVoteData =
-                                  CurrentVoteData.newVote(currentUser.email);
-                              // currentVoteData = CurrentVoteData(
-                              //     voteId: participatedVoteKey,
-                              //     currentVote: participatedVote,
-                              //     userSelection: currentUser
-                              //         .getUserVoteChoices(participatedVoteKey));
-                              currentVoteData.voteId = participatedVoteKey;
-                              currentVoteData.currentVote = participatedVote;
-                              currentVoteData
-                                  .changeTitle(participatedVote.title);
-                              // print(currentVoteData.userSelection);
-                              print(currentUser
+                ),
+                BlocListener<CurrentVoteData, CurrentVoteDataStates>(
+                  listener: (context, currentVoteDataState) {
+                    if (currentVoteDataState is CurrentVoteOpenVoteDetailsState)
+                      Navigator.pushNamed(context, VoteDetailsScreen.id);
+                  },
+                )
+              ],
+              child:
+                  BlocBuilder<User, UserStates>(builder: (context, userState) {
+                User currentUser = User.get(context);
+                print(
+                    'userChoices in start of votes screen${User.get(context).userChoices}');
+                CurrentVoteData currentVoteData = CurrentVoteData.get(context);
+                return SliverList(
+                  delegate: SliverChildBuilderDelegate(
+                    (BuildContext context, int index) {
+                      String participatedVoteKey =
+                          currentUser.participatedInVotes.keys.elementAt(index);
+                      final participatedVote = currentUser
+                          .participatedInVotes.values
+                          .elementAt(index);
+                      return VoteCard(
+                        title: participatedVote.title,
+                        createdByEmail: participatedVote.createdByEmail,
+                        expirationDateTime: participatedVote.expirationDateTime,
+                        onCardPressedCallback: () {
+                          currentVoteData.openVoteDetails(
+                              voteId: participatedVoteKey,
+                              vote: participatedVote,
+                              userSelection: currentUser
                                   .getUserVoteChoices(participatedVoteKey));
-                              currentVoteData.userSelection = currentUser
-                                  .getUserVoteChoices(participatedVoteKey);
-                              print(currentVoteData.userSelection);
-                              // currentVoteData.notifyListenersAboutChanges();
-                              print(
-                                  'currentVoteData in votes_screen: ${currentVoteData.currentVote.toJson()}');
-                              print(
-                                  'userSelections in votes_screen: ${currentUser.getUserVoteChoices(participatedVoteKey)}');
-                              Navigator.pushNamed(
-                                  context, VoteDetailsScreen.id);
-                            },
-                          );
                         },
-                        childCount: currentUser.participatedInVotes.length,
-                      ),
-                    );
-                  });
-            })
+                      );
+                    },
+                    childCount: currentUser.participatedInVotes.length,
+                  ),
+                );
+              }),
+            ),
           ],
         ),
       ),

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
-import 'package:wevote/models/current_vote_data.dart';
+import 'package:wevote/models/current_vote_data/current_vote_data.dart';
+import 'package:wevote/models/current_vote_data/current_vote_data_states.dart';
 
 class AddChoiceScreen extends StatelessWidget {
   @override
@@ -36,21 +38,26 @@ class AddChoiceScreen extends StatelessWidget {
                 newChoiceTitle = newText;
               },
             ),
-            FlatButton(
-              child: Text(
-                'Add',
-                style: TextStyle(
-                  color: Colors.white,
-                ),
-              ),
-              color: Colors.lightBlueAccent,
-              onPressed: () {
-                Provider.of<CurrentVoteData>(context, listen: false)
-                    .addChoice(newChoiceTitle);
-                // Dismiss the keyboard
-                FocusScope.of(context).unfocus();
-                Navigator.pop(context);
+            BlocListener<CurrentVoteData, CurrentVoteDataStates>(
+              listener: (context, currentVoteDataState) {
+                if (currentVoteDataState is CurrentVoteAddNewChoiceState) {
+                  // Dismiss the keyboard
+                  FocusScope.of(context).unfocus();
+                  Navigator.pop(context);
+                }
               },
+              child: FlatButton(
+                child: Text(
+                  'Add',
+                  style: TextStyle(
+                    color: Colors.white,
+                  ),
+                ),
+                color: Colors.lightBlueAccent,
+                onPressed: () {
+                  CurrentVoteData.get(context).addChoice(newChoiceTitle);
+                },
+              ),
             ),
           ],
         ),

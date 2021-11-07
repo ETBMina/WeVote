@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
-import 'package:wevote/models/current_vote_data.dart';
+import 'package:wevote/models/current_vote_data/current_vote_data.dart';
+import 'package:wevote/models/current_vote_data/current_vote_data_states.dart';
 import 'package:wevote/models/user/user.dart';
 
 class RadioChoiceTile extends StatefulWidget {
@@ -21,8 +23,11 @@ class RadioChoiceTile extends StatefulWidget {
 class _RadioChoiceTileState extends State<RadioChoiceTile> {
   @override
   Widget build(BuildContext context) {
-    return Consumer<CurrentVoteData>(
-        builder: (context, currentVoteData, child) {
+    return BlocBuilder<CurrentVoteData, CurrentVoteDataStates>(
+        buildWhen: (prevState, currState) {
+      return currState is CurrentVoteChangeUserSelectionState;
+    }, builder: (context, currentVoteDataState) {
+      CurrentVoteData currentVoteData = CurrentVoteData.get(context);
       return RadioListTile(
         title: Text(widget.choiceTitle),
         // This is the value of the choice, which should be constant for every choice
@@ -32,13 +37,13 @@ class _RadioChoiceTileState extends State<RadioChoiceTile> {
             ? ''
             : currentVoteData.userSelection[0],
         onChanged: (String? selectedValue) {
-          // print(
-          //     'userChoices in RadioChoiceTile${Provider.of<User>(context, listen: false).userChoices}');
+          print(
+              'userChoices in RadioChoiceTile${User.get(context).userChoices}');
           currentVoteData.changeFirstSelection(selectedValue ?? '');
           // print(
           //     'currentVoteData userSelection in radio:${currentVoteData.userSelection}');
-          // print(
-          //     'userChoices in RadioChoiceTile${Provider.of<User>(context, listen: false).userChoices}');
+          print(
+              'userChoices in RadioChoiceTile${User.get(context).userChoices}');
         },
       );
     });

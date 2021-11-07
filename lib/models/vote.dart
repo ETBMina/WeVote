@@ -80,6 +80,10 @@ class Vote {
     isPublic = !isPublic;
   }
 
+  void toggleIsSecret() {
+    isSecretVote = !isSecretVote;
+  }
+
   void toggleAddingChoicesAllowed() {
     isAddingChoicesAllowed = !isAddingChoicesAllowed;
   }

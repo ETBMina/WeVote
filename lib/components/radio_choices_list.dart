@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:wevote/models/current_vote_data.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:wevote/models/current_vote_data/current_vote_data.dart';
 import 'package:wevote/components/radio_choice_tile.dart';
 import 'package:provider/provider.dart';
+import 'package:wevote/models/current_vote_data/current_vote_data_states.dart';
 
 // This is a test data TODO remove it
 // var vote = Vote(
@@ -28,8 +30,12 @@ import 'package:provider/provider.dart';
 class RadioChoicesList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Consumer<CurrentVoteData>(
-      builder: (context, currentVoteData, child) {
+    return BlocBuilder<CurrentVoteData, CurrentVoteDataStates>(
+      buildWhen: (prevState, currState) {
+        return currState is CurrentVoteChangeUserSelectionState;
+      },
+      builder: (context, currentVoteDataState) {
+        CurrentVoteData currentVoteData = CurrentVoteData.get(context);
         var currentVote = currentVoteData.currentVote;
         //TODO remove below comment
         // List<String> choices = vote.choices.keys.toList();

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:wevote/models/current_vote_data.dart';
+import 'package:wevote/models/current_vote_data/current_vote_data.dart';
+import 'package:wevote/models/current_vote_data/current_vote_data_states.dart';
 import 'package:wevote/models/user/user_states.dart';
 import 'package:wevote/screens/add_choice_screen.dart';
 import 'package:wevote/components/new_choices_list.dart';
@@ -21,27 +22,25 @@ class _CreateVoteScreenState extends State<CreateVoteScreen> {
   TextEditingController _titleController = TextEditingController();
 
   TextEditingController _descriptionController = TextEditingController();
-  // TODO remove this
-  List<String> choices = ['hello'];
   // late Vote newVote;
 
   @override
   void initState() {
     super.initState();
-    // TODO remove this
-    choices.add('value');
     // newVote = Vote.emailOnly(Provider.of<User>(context, listen: false).email);
-    Provider.of<CurrentVoteData>(context, listen: false).currentVote =
-        Vote.emailOnly(User.get(context).email);
+    // CurrentVoteData.get(context).currentVote =
+    //     Vote.emailOnly(User.get(context).email);
+    CurrentVoteData.get(context).resetVoteData(User.get(context).email);
     print('create vote screen init state');
-    print(
-        'currentVote = ${Provider.of<CurrentVoteData>(context, listen: false).currentVote.toJson()}');
+    print('currentVote = ${CurrentVoteData.get(context).currentVote.toJson()}');
   }
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<CurrentVoteData>(
-      builder: (context, currentVoteData, child) {
+    return BlocConsumer<CurrentVoteData, CurrentVoteDataStates>(
+      listener: (context, currentVoteDataState) {},
+      builder: (context, currentVoteDataState) {
+        CurrentVoteData currentVoteData = CurrentVoteData.get(context);
         print('create vote screen build tree');
         // var newVote = currentVoteData.currentVote;
         return Scaffold(
@@ -188,31 +187,21 @@ class _CreateVoteScreenState extends State<CreateVoteScreen> {
                       title: const Text('Public vote'),
                       value: currentVoteData.currentVote.isPublic,
                       onChanged: (value) {
-                        // TODO: remove setState
-                        setState(() {
-                          currentVoteData.currentVote.isPublic = value;
-                        });
+                        currentVoteData.toggleIsPublic();
                       },
                     ),
                     SwitchListTile(
                       title: const Text('Secret Identity'),
                       value: currentVoteData.currentVote.isSecretVote,
                       onChanged: (value) {
-                        // TODO: remove setState
-                        setState(() {
-                          currentVoteData.currentVote.isSecretVote = value;
-                        });
+                        currentVoteData.toggleIsSecret();
                       },
                     ),
                     SwitchListTile(
                       title: const Text('Allow participants to add choices'),
                       value: currentVoteData.currentVote.isAddingChoicesAllowed,
                       onChanged: (value) {
-                        // TODO: remove setState
-                        setState(() {
-                          currentVoteData.currentVote.isAddingChoicesAllowed =
-                              value;
-                        });
+                        currentVoteData.toggleIsAddingChoicesAllowed();
                       },
                     ),
                     NewChoicesList(),
