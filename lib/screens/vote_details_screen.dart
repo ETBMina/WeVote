@@ -163,23 +163,35 @@ class VoteDetailsScreen extends StatelessWidget {
                   child: RadioChoicesList(),
                 ),
                 // Buttons Row:
-                Row(
-                  mainAxisSize: MainAxisSize.max,
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    // Submit Button
-                    RoundedButton(
-                        color: Colors.blueAccent,
-                        text: 'Submit',
-                        onPressed: () {
-                          // currentUser.submitChoices(currentVoteData.voteId,
-                          //     currentVoteData.userSelection);
-                        }),
-                    RoundedButton(
-                        color: Colors.blueAccent,
-                        text: 'Cancel',
-                        onPressed: () {}),
-                  ],
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 10),
+                  child: Row(
+                    // mainAxisSize: MainAxisSize.max,
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      // Submit Button
+                      Expanded(
+                        child: RoundedButton(
+                            color: Colors.blueAccent,
+                            text: 'Submit',
+                            onPressed: () {
+                              // currentUser.submitChoices(currentVoteData.voteId,
+                              //     currentVoteData.userSelection);
+                            }),
+                      ),
+                      SizedBox(
+                        width: 10,
+                      ),
+                      Expanded(
+                        child: RoundedButton(
+                            color: Colors.blueAccent,
+                            text: 'Cancel',
+                            onPressed: () {
+                              Navigator.pop(context);
+                            }),
+                      ),
+                    ],
+                  ),
                 ),
               ],
             );
