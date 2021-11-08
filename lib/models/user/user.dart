@@ -223,7 +223,7 @@ class User extends Cubit<UserStates> {
     emit(UserLoadParticipatedInVotesState());
   }
 
-  Future<void> submitChoices(String voteId, List<String> userSelections) async {
+  Future<bool> submitChoices(String voteId, List<String> userSelections) async {
     print('submitChoices called');
     // Sort the user selections to be used for comparison with old selection
     // userSelections.sort();
@@ -231,11 +231,34 @@ class User extends Cubit<UserStates> {
         userSelections.toSet().difference(userChoices[voteId]!.toSet());
     Set<String> removedChoices =
         userChoices[voteId]!.toSet().difference(userSelections.toSet());
+
+    //Update the choices voting in DB
+    incDecChoiceVoting(voteId, newChoices, true);
+    incDecChoiceVoting(voteId, removedChoices, false);
+
     // update local user choices
-    // userChoices[voteId] = userSelections;
+    this.userChoices[voteId] = List.from(userSelections);
+
     // update database user choices
-    // await addVoteToUserData();
-    emit(UserSubmitChoicesState());
+    if (await addVoteToUserData()) {
+      emit(UserSubmitChoicesState());
+      return true;
+    }
+    return false;
+  }
+
+  // This method is used for incrementing or decrementing choices value
+  Future<bool> incDecChoiceVoting(
+      String voteId, Set<String> choices, bool isIncrement) async {
+    CollectionReference votesRef =
+        FirebaseFirestore.instance.collection('votes');
+    int incrementValue = isIncrement ? 1 : -1;
+    for (String choice in choices) {
+      await votesRef
+          .doc(voteId)
+          .update({"choices.$choice": FieldValue.increment(incrementValue)});
+    }
+    return true;
   }
 
   // UnmodifiableListView<Vote> get votes {

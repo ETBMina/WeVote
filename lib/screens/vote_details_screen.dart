@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:wevote/models/current_vote_data/current_vote_data.dart';
 import 'package:wevote/models/current_vote_data/current_vote_data_states.dart';
 import 'package:wevote/models/user/user.dart';
+import 'package:wevote/models/user/user_states.dart';
 import 'package:wevote/utilities/constants.dart';
 import 'package:intl/intl.dart';
 import 'package:wevote/components/rounded_button.dart';
@@ -171,13 +172,23 @@ class VoteDetailsScreen extends StatelessWidget {
                     children: [
                       // Submit Button
                       Expanded(
-                        child: RoundedButton(
-                            color: Colors.blueAccent,
-                            text: 'Submit',
-                            onPressed: () {
-                              // currentUser.submitChoices(currentVoteData.voteId,
-                              //     currentVoteData.userSelection);
-                            }),
+                        child: BlocListener<User, UserStates>(
+                          listener: (context, userState) {
+                            if (userState is UserSubmitChoicesState) {
+                              Navigator.pop(context);
+                            }
+                          },
+                          child: RoundedButton(
+                              color: Colors.blueAccent,
+                              text: 'Submit',
+                              onPressed: () async {
+                                // currentUser.submitChoices(currentVoteData.voteId,
+                                //     currentVoteData.userSelection);
+                                await User.get(context).submitChoices(
+                                    currentVoteData.voteId,
+                                    currentVoteData.userSelection);
+                              }),
+                        ),
                       ),
                       SizedBox(
                         width: 10,
