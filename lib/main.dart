@@ -4,7 +4,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wevote/screens/vote_details_screen.dart';
 import 'package:wevote/screens/votes_screen.dart';
 import 'package:wevote/screens/create_vote_screen.dart';
-import 'package:provider/provider.dart';
 import 'package:wevote/utilities/bloc_observer.dart';
 import 'models/user/user.dart';
 import 'models/current_vote_data/current_vote_data.dart';

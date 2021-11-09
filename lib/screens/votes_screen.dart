@@ -7,7 +7,6 @@ import 'package:wevote/models/user/user_states.dart';
 import 'package:wevote/screens/vote_details_screen.dart';
 import 'package:wevote/utilities/constants.dart';
 import 'package:wevote/screens/create_vote_screen.dart';
-import 'package:provider/provider.dart';
 import 'package:wevote/models/user/user.dart';
 
 class VotesScreen extends StatelessWidget {
@@ -15,7 +14,6 @@ class VotesScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // currentVoteData = CurrentVoteData.newVote(currentUser.email);
     print('votes screen build tree');
     return MediaQuery(
       data: MediaQuery.of(context).copyWith(
@@ -26,7 +24,6 @@ class VotesScreen extends StatelessWidget {
         floatingActionButton: FloatingActionButton(
           child: const Icon(Icons.add),
           onPressed: () {
-            // currentVoteData.resetVoteData();
             Navigator.pushNamed(context, CreateVoteScreen.id);
           },
         ),

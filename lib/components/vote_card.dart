@@ -66,7 +66,7 @@ class VoteCard extends StatelessWidget {
                                   ),
                                   Expanded(
                                     child: Text(
-                                      '${createdByEmail}',
+                                      createdByEmail,
                                       maxLines: 1,
                                       overflow: TextOverflow.ellipsis,
                                       style: kCardBodyTextStyle,

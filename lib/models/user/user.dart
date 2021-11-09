@@ -1,6 +1,5 @@
 import 'package:wevote/models/user/user_states.dart';
 import 'package:wevote/models/vote.dart';
-import 'package:flutter/foundation.dart';
 import 'package:firebase_auth/firebase_auth.dart' as auth;
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -225,10 +224,10 @@ class User extends Cubit<UserStates> {
 
   Future<bool> submitChoices(String voteId, List<String> userSelections) async {
     print('submitChoices called');
-    // Sort the user selections to be used for comparison with old selection
-    // userSelections.sort();
+    // Get the new choices that the user has checked
     Set<String> newChoices =
         userSelections.toSet().difference(userChoices[voteId]!.toSet());
+    // Get the choices that the user has unchecked
     Set<String> removedChoices =
         userChoices[voteId]!.toSet().difference(userSelections.toSet());
 

@@ -5,9 +5,7 @@ import 'package:wevote/models/current_vote_data/current_vote_data_states.dart';
 import 'package:wevote/models/user/user_states.dart';
 import 'package:wevote/screens/add_choice_screen.dart';
 import 'package:wevote/components/new_choices_list.dart';
-import 'package:provider/provider.dart';
 import 'package:wevote/models/user/user.dart';
-import 'package:wevote/models/vote.dart';
 
 class CreateVoteScreen extends StatefulWidget {
   static const String id = 'create_vote_screen';
@@ -27,9 +25,6 @@ class _CreateVoteScreenState extends State<CreateVoteScreen> {
   @override
   void initState() {
     super.initState();
-    // newVote = Vote.emailOnly(Provider.of<User>(context, listen: false).email);
-    // CurrentVoteData.get(context).currentVote =
-    //     Vote.emailOnly(User.get(context).email);
     CurrentVoteData.get(context).resetVoteData(User.get(context).email);
     print('create vote screen init state');
     print('currentVote = ${CurrentVoteData.get(context).currentVote.toJson()}');
@@ -42,7 +37,6 @@ class _CreateVoteScreenState extends State<CreateVoteScreen> {
       builder: (context, currentVoteDataState) {
         CurrentVoteData currentVoteData = CurrentVoteData.get(context);
         print('create vote screen build tree');
-        // var newVote = currentVoteData.currentVote;
         return Scaffold(
           // Set resizeToAvoidBottomInset to false to prevent floatingActionButton from pushing up with the keyboard
           resizeToAvoidBottomInset: false,

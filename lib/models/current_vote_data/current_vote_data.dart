@@ -2,7 +2,6 @@ import 'package:bloc/bloc.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wevote/models/current_vote_data/current_vote_data_states.dart';
 import 'package:wevote/models/vote.dart';
-import 'package:flutter/foundation.dart';
 
 class CurrentVoteData extends Cubit<CurrentVoteDataStates> {
   String voteId;
@@ -28,12 +27,6 @@ class CurrentVoteData extends Cubit<CurrentVoteDataStates> {
         currentVote = Vote.empty(),
         userSelection = [],
         super(CurrentVoteInitialState());
-
-  // CurrentVoteData.openVoteDetails(
-  //     {required this.voteId,
-  //     required this.currentVote,
-  //     required this.userSelection})
-  //     : super(CurrentVoteOpenVoteDetailsState());
 
   void openVoteDetails(
       {required String voteId,

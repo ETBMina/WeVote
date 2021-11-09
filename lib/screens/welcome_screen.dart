@@ -3,8 +3,6 @@ import 'package:wevote/components/rounded_button.dart';
 import 'package:wevote/screens/registration_screen.dart';
 import 'package:wevote/screens/login_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:provider/provider.dart';
-import 'package:wevote/models/user/user.dart';
 
 class WelcomeScreen extends StatefulWidget {
   static String id = 'welcome_screen';

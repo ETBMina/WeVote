@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wevote/components/radio_choices_list.dart';
-import 'package:provider/provider.dart';
 import 'package:wevote/models/current_vote_data/current_vote_data.dart';
 import 'package:wevote/models/current_vote_data/current_vote_data_states.dart';
 import 'package:wevote/models/user/user.dart';

@@ -5,7 +5,6 @@ import 'package:wevote/models/user/user_states.dart';
 import 'package:wevote/screens/votes_screen.dart';
 import 'package:wevote/utilities/constants.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
-import 'package:provider/provider.dart';
 import 'package:wevote/models/user/user.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -97,42 +96,10 @@ class _LoginScreenState extends State<LoginScreen> {
                           showSpinner = true;
                         });
                         //Implement login functionality.
-                        // try {
-                        //   final user = await _auth.signInWithEmailAndPassword(
-                        //       email: email!, password: password!);
-                        //
-                        //   if (user != null) {
-                        //     print('Logged in successfully');
-                        //     currentUser = User(email: email!);
-                        //
-                        //     Navigator.pushNamed(context, VotesScreen.id);
-                        //     setState(() {
-                        //       showSpinner = false;
-                        //     });
-                        //   } else
-                        //     print('Not looged in');
-                        // } on auth.FirebaseAuthException catch (e) {
-                        //   if (e.code == 'user-not-found') {
-                        //     print('No user found for that email.');
-                        //   } else if (e.code == 'wrong-password') {
-                        //     print('Wrong password provided for that user.');
-                        //   } else if (e.code == 'invalid-email') {
-                        //     print('the email address is not valid.');
-                        //   } else if (e.code == 'user-disabled') {
-                        //     print(
-                        //         'the user corresponding to the given email has been disabled.');
-                        //   } else
-                        //     print(e);
-                        // }
                         //TODO make email and password not nullable
                         if (await currentUser.login(
                             email: email!, password: password!)) {
                           print('Logged in successfully');
-                          // setState(() {
-                          //   showSpinner = false;
-                          // });
-                          // print('going to push');
-                          // Navigator.pushNamed(context, VotesScreen.id);
                         } else {
                           print('Not looged in');
                         }
