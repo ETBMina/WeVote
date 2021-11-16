@@ -18,3 +18,5 @@ class CurrentVoteToggleIsSecretState extends CurrentVoteDataStates {}
 
 class CurrentVoteToggleIsAddingChoicesAllowedState
     extends CurrentVoteDataStates {}
+
+class CurrentVoteEndVoteState extends CurrentVoteDataStates {}
