@@ -103,7 +103,7 @@ class _CreateVoteScreenState extends State<CreateVoteScreen> {
                           borderRadius: new BorderRadius.circular(8.0)),
                       child: Text('Cancel'),
                       onPressed: () {
-                        // TODO Cancel the vote creating and return to the home screen
+                        Navigator.pop(context);
                       },
                     ),
                   ),
