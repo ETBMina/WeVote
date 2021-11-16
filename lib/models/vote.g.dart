@@ -21,7 +21,7 @@ Vote _$VoteFromJson(Map<String, dynamic> json) => Vote(
           .toList(),
       createdDateTime: DateTime.parse(json['createdDateTime'] as String),
       expirationDateTime: DateTime.parse(json['expirationDateTime'] as String),
-    );
+    )..status = $enumDecode(_$StatusEnumMap, json['status']);
 
 Map<String, dynamic> _$VoteToJson(Vote instance) => <String, dynamic>{
       'isPublic': instance.isPublic,
@@ -36,4 +36,10 @@ Map<String, dynamic> _$VoteToJson(Vote instance) => <String, dynamic>{
       'rankingWeights': instance.rankingWeights,
       'createdDateTime': instance.createdDateTime.toIso8601String(),
       'expirationDateTime': instance.expirationDateTime.toIso8601String(),
+      'status': _$StatusEnumMap[instance.status],
     };
+
+const _$StatusEnumMap = {
+  Status.active: 'active',
+  Status.completed: 'completed',
+};

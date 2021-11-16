@@ -7,6 +7,8 @@ import 'package:json_annotation/json_annotation.dart';
 /// use "flutter pub run build_runner build" to generate it.
 part 'vote.g.dart';
 
+enum Status { active, completed }
+
 /// An annotation for the code generator to know that this class needs the
 /// JSON serialization logic to be generated.
 @JsonSerializable()
@@ -23,6 +25,7 @@ class Vote {
   List<int> rankingWeights;
   final DateTime createdDateTime;
   DateTime expirationDateTime;
+  Status status;
 
   Vote(
       {required this.isPublic,
@@ -37,7 +40,8 @@ class Vote {
       List<int>? rankingWeights,
       required this.createdDateTime,
       required this.expirationDateTime})
-      : rankingWeights = rankingWeights ?? [];
+      : rankingWeights = rankingWeights ?? [],
+        status = Status.active;
 
   Vote.empty()
       : createdByEmail = '',
@@ -51,7 +55,8 @@ class Vote {
         isAddingChoicesAllowed = false,
         noOfChoicesToSelect = 1,
         expirationDateTime = DateTime.now(),
-        rankingWeights = [];
+        rankingWeights = [],
+        status = Status.active;
 
   Vote.emailOnly(this.createdByEmail)
       : isOrderMaters = false,
@@ -64,7 +69,8 @@ class Vote {
         isAddingChoicesAllowed = false,
         noOfChoicesToSelect = 1,
         expirationDateTime = DateTime.now(),
-        rankingWeights = [];
+        rankingWeights = [],
+        status = Status.active;
 
   /// A necessary factory constructor for creating a new Vote instance
   /// from a map. Pass the map to the generated `_$VoteFromJson()` constructor.
@@ -101,9 +107,22 @@ class Vote {
     }
   }
 
+  int compare(int first, int second) {
+    int result = first.compareTo(second);
+    return result == 0 ? 1 : result;
+  }
+
   SplayTreeMap<String, int> calculateWinners() {
     SplayTreeMap<String, int> sortedWinners = SplayTreeMap.from(
-        choices, (key1, key2) => choices[key1]!.compareTo(choices[key2]!));
+        choices, (key1, key2) => compare(choices[key2]!, choices[key1]!));
     return sortedWinners;
+  }
+
+  // SplayTreeMap<String, int> endVoteAndGetWinners() {
+  //   status = Status.completed;
+  // }
+
+  void markVoteAsCompleted() {
+    status = Status.completed;
   }
 }
