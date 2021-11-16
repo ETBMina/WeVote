@@ -13,3 +13,7 @@ class UserUpdateDisplayNameState extends UserStates {}
 class UserLoadParticipatedInVotesState extends UserStates {}
 
 class UserSubmitChoicesState extends UserStates {}
+
+class UserJoinVoteState extends UserStates {}
+
+class UserDeleteVoteState extends UserStates {}
