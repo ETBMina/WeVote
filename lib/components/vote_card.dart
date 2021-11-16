@@ -60,7 +60,7 @@ class VoteCard extends StatelessWidget {
                               Row(
                                 children: [
                                   Text(
-                                    'Created By:  ',
+                                    'Created By: ',
                                     style: kCardHeadingsTextStyle,
                                     textAlign: TextAlign.left,
                                   ),
@@ -78,7 +78,7 @@ class VoteCard extends StatelessWidget {
                               Row(
                                 children: [
                                   Text(
-                                    'Expire Date: ',
+                                    'End Date: ',
                                     style: kCardHeadingsTextStyle,
                                     textAlign: TextAlign.left,
                                   ),
