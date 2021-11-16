@@ -1,3 +1,5 @@
+import 'dart:collection';
+
 import 'package:bloc/bloc.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wevote/models/current_vote_data/current_vote_data_states.dart';
@@ -7,25 +9,28 @@ class CurrentVoteData extends Cubit<CurrentVoteDataStates> {
   String voteId;
   Vote currentVote;
   List<String> userSelection;
-
+  SplayTreeMap<String, int> winners;
   static CurrentVoteData get(context) => BlocProvider.of(context);
 
   CurrentVoteData(
       {required this.voteId,
       required this.currentVote,
       required this.userSelection})
-      : super(CurrentVoteInitialState());
+      : winners = SplayTreeMap<String, int>(),
+        super(CurrentVoteInitialState());
 
   CurrentVoteData.newVote(String createdByEmail)
       : voteId = 'tempVoteId',
         currentVote = Vote.emailOnly(createdByEmail),
         userSelection = [],
+        winners = SplayTreeMap<String, int>(),
         super(CurrentVoteInitialState());
 
   CurrentVoteData.empty()
       : voteId = 'tempVoteId',
         currentVote = Vote.empty(),
         userSelection = [],
+        winners = SplayTreeMap<String, int>(),
         super(CurrentVoteInitialState());
 
   void openVoteDetails(
@@ -80,7 +85,16 @@ class CurrentVoteData extends Cubit<CurrentVoteDataStates> {
     emit(CurrentVoteToggleIsAddingChoicesAllowedState());
   }
 
+  void calculateWinners() {
+    winners = currentVote.calculateWinners();
+    emit(CurrentVoteEndVoteState());
+  }
+
 // void notifyListenersAboutChanges() {
   //   notifyListeners();
+  // }
+  // SplayTreeMap<String, int> endVoteAndGetWinners() {
+  //   currentVote.markVoteAsCompleted();
+  //   return currentVote.calculateWinners();
   // }
 }
