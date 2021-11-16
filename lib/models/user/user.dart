@@ -37,6 +37,8 @@ class User extends Cubit<UserStates> {
       required String password,
       required fullName}) async {
     try {
+      //Empty participatedInVotes TODO try to solve this bug
+      participatedInVotes = {};
       // register
       auth.UserCredential userCredential = await _auth
           .createUserWithEmailAndPassword(email: email, password: password);
@@ -151,8 +153,8 @@ class User extends Cubit<UserStates> {
     CollectionReference userDetailsRef =
         FirebaseFirestore.instance.collection('user details');
     try {
-      // the document will be empty at the beginning
-      Map<String, dynamic> emptyMap = {};
+      // the document will contain empty "userChoices" at the beginning:
+      Map<String, dynamic> emptyMap = {'userChoices': []};
       await userDetailsRef.doc(_auth.currentUser!.uid).set(emptyMap);
       return true;
     } catch (e) {
@@ -195,25 +197,23 @@ class User extends Cubit<UserStates> {
     // Get user choices
     DocumentSnapshot userDetailsDocRef = await userDetailsRef.get();
     // Convert the fetched userChoices to Map<String, dynamic>
-    Map<String, dynamic> temp = await userDetailsDocRef['userChoices'];
-    // fromMap(<String, dynamic>{
-    //   'NMwbr5G4DxFACsCzmh2J': ['one', 'two']
-    // });
-    // List<String> temp2 =
-    //     (temp.values.toList()).map((e) => e as String).toList();
-    // print(temp2);
-    // Set the local userChoices
-    userChoices = (temp).map(
-      (k, e) =>
-          MapEntry(k, (e as List<dynamic>).map((e) => e as String).toList()),
-    );
-    // userChoices = temp as Map<String, List<String>>;
-    // userChoices = await userDetailsRef.get().then((snapshot) {
-    //   var choices = snapshot.get('userChoices');
-    //   return Map<String, List<String>>.from(choices);
-    // });
-    // Looping the userChoices and get the vote data for each vote the user is participating in:
+    var temp = await userDetailsDocRef['userChoices'];
+    // If temp is List, this means that userChoices fetched is empty
+    if (temp is List) {
+      // Let userChoices be empty map
+      userChoices = {};
+    } else {
+      temp = temp as Map<String, dynamic>;
+      userChoices = (temp).map(
+        (k, e) =>
+            MapEntry(k, (e as List<dynamic>).map((e) => e as String).toList()),
+      );
+    }
 
+    // Empty participatedInVotes
+    // TODO this is a bug that the User instance should be created when logging or registering as not to take the prev data
+    participatedInVotes = {};
+    // Looping the userChoices and get the vote data for each vote the user is participating in:
     for (var voteId in userChoices.keys) {
       DocumentSnapshot vote = await votesRef.doc(voteId).get();
       Map<String, dynamic> voteData = vote.data() as Map<String, dynamic>;
@@ -260,7 +260,67 @@ class User extends Cubit<UserStates> {
     return true;
   }
 
-  // UnmodifiableListView<Vote> get votes {
-  //   return UnmodifiableListView(participatedInVotes ?? []);
-  // }
+  Future<bool> joinVote(String voteId) async {
+    // Add to userChoices
+    //TODO support if DB adding fails, rollback
+    userChoices[voteId] = [];
+    // Add userChoices to userDetails collection:
+    addVoteToUserData();
+    // Fetch vote data from Firebase:
+    CollectionReference votesRef =
+        FirebaseFirestore.instance.collection('votes');
+    // TODO: add the following code to a function as it is used in diff places
+    DocumentSnapshot vote = await votesRef.doc(voteId).get();
+    Map<String, dynamic> voteData = vote.data() as Map<String, dynamic>;
+    participatedInVotes[voteId] = Vote.fromJson(voteData);
+    emit(UserJoinVoteState());
+    //TODO return the actual state
+    return true;
+  }
+
+  Future<void> endVote(String voteId) async {
+    //TODO what happens if not authorized
+    // Check If current user is authorized to end vote:
+    if (participatedInVotes[voteId]!.createdByEmail == email) {
+      // user is authorized
+      // Fetch vote data from Firebase:
+      DocumentReference voteDoc =
+          FirebaseFirestore.instance.collection('votes').doc(voteId);
+      DocumentSnapshot voteData = await voteDoc.get();
+      // Update choices to calculate winners:
+      participatedInVotes[voteId]!.choices = Map.from(voteData['choices']);
+      // Set vote Status completed:
+      await voteDoc.update({'status': "completed"});
+      participatedInVotes[voteId]!.status = Status.completed;
+      print(participatedInVotes[voteId]!.calculateWinners());
+      // emit(state)
+    }
+  }
+
+  Future<void> deleteVote(String voteId) async {
+    //TODO what happens if not authorized
+    // Check If current user is authorized to end vote:
+    if (participatedInVotes[voteId]!.createdByEmail == email) {
+      // Delete vote Document:
+      await FirebaseFirestore.instance.collection('votes').doc(voteId).delete();
+      CollectionReference userDetailsCollection =
+          FirebaseFirestore.instance.collection('user details');
+      print(voteId);
+      // Query for users that is participated in the vote
+      var docs =
+          userDetailsCollection.where('userChoices.$voteId', isNull: false);
+      await docs.get().then((querySnapshot) {
+        querySnapshot.docs.forEach((document) {
+          // Delete vote field from userChoices
+          document.reference
+              .update({'userChoices.$voteId': FieldValue.delete()});
+        });
+      });
+      // Delete vote from local userChoices and participatedInVotes
+      userChoices.remove(voteId);
+      participatedInVotes.remove(voteId);
+
+      emit(UserDeleteVoteState());
+    }
+  }
 }
