@@ -1,13 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wevote/components/radio_choices_list.dart';
+import 'package:wevote/components/winners_list.dart';
 import 'package:wevote/models/current_vote_data/current_vote_data.dart';
 import 'package:wevote/models/current_vote_data/current_vote_data_states.dart';
 import 'package:wevote/models/user/user.dart';
 import 'package:wevote/models/user/user_states.dart';
+import 'package:wevote/models/vote.dart';
 import 'package:wevote/utilities/constants.dart';
 import 'package:intl/intl.dart';
 import 'package:wevote/components/rounded_button.dart';
+import 'package:flutter/services.dart';
+
+enum VoteAction { end, share, delete }
 
 class VoteDetailsScreen extends StatelessWidget {
   static const String id = 'vote_details_screen';
@@ -22,7 +27,7 @@ class VoteDetailsScreen extends StatelessWidget {
             print('vote details screen rebuild');
             return Column(
               children: [
-                // Widget: Title card
+                // Widget: Title and details card
                 Card(
                   elevation: 5,
                   child: Column(
@@ -113,30 +118,45 @@ class VoteDetailsScreen extends StatelessWidget {
                             ),
                             Align(
                               alignment: Alignment.centerRight,
-                              child: PopupMenuButton(
+                              child: PopupMenuButton<VoteAction>(
+                                onSelected: (VoteAction selectedAction) async {
+                                  if (selectedAction == VoteAction.end) {
+                                    await User.get(context)
+                                        .endVote(currentVoteData.voteId);
+                                    currentVoteData.calculateWinners();
+                                  } else if (selectedAction ==
+                                      VoteAction.delete) {
+                                    await User.get(context)
+                                        .deleteVote(currentVoteData.voteId);
+                                    Navigator.pop(context);
+                                  } else {
+                                    Clipboard.setData(ClipboardData(
+                                        text: currentVoteData.voteId));
+                                  }
+                                },
                                 itemBuilder: (context) => [
-                                  PopupMenuItem(
-                                    value: 1,
+                                  PopupMenuItem<VoteAction>(
+                                    value: VoteAction.end,
                                     child: Text(
-                                      "Earth",
+                                      "End Vote",
                                       style: TextStyle(
                                           color: Colors.black,
                                           fontWeight: FontWeight.w700),
                                     ),
                                   ),
-                                  PopupMenuItem(
-                                    value: 2,
+                                  PopupMenuItem<VoteAction>(
+                                    value: VoteAction.share,
                                     child: Text(
-                                      "Moon",
+                                      "Share",
                                       style: TextStyle(
                                           color: Colors.black,
                                           fontWeight: FontWeight.w700),
                                     ),
                                   ),
-                                  PopupMenuItem(
-                                    value: 3,
+                                  PopupMenuItem<VoteAction>(
+                                    value: VoteAction.delete,
                                     child: Text(
-                                      "Sun",
+                                      "Delete",
                                       style: TextStyle(
                                           color: Colors.black,
                                           fontWeight: FontWeight.w700),
@@ -158,54 +178,107 @@ class VoteDetailsScreen extends StatelessWidget {
                     ],
                   ),
                 ),
-                // Choices List:
                 Expanded(
-                  child: RadioChoicesList(),
-                ),
-                // Buttons Row:
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 10),
-                  child: Row(
-                    // mainAxisSize: MainAxisSize.max,
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      // Submit Button
-                      Expanded(
-                        child: BlocListener<User, UserStates>(
-                          listener: (context, userState) {
-                            if (userState is UserSubmitChoicesState) {
-                              Navigator.pop(context);
-                            }
-                          },
-                          child: RoundedButton(
-                              color: Colors.blueAccent,
-                              text: 'Submit',
-                              onPressed: () async {
-                                // currentUser.submitChoices(currentVoteData.voteId,
-                                //     currentVoteData.userSelection);
-                                await User.get(context).submitChoices(
-                                    currentVoteData.voteId,
-                                    currentVoteData.userSelection);
-                              }),
-                        ),
-                      ),
-                      SizedBox(
-                        width: 10,
-                      ),
-                      Expanded(
-                        child: RoundedButton(
-                            color: Colors.blueAccent,
-                            text: 'Cancel',
-                            onPressed: () {
-                              Navigator.pop(context);
-                            }),
-                      ),
-                    ],
-                  ),
-                ),
+                  child: currentVoteData.currentVote.status == Status.completed
+                      ? VoteWinners(currentVoteData: currentVoteData)
+                      : VoteChoices(currentVoteData: currentVoteData),
+                )
+
+                // Expanded(
+                //   child: VoteChoices(currentVoteData: currentVoteData),
+                // ),
               ],
             );
           }),
+    );
+  }
+}
+
+class VoteWinners extends StatelessWidget {
+  const VoteWinners({
+    Key? key,
+    required this.currentVoteData,
+  }) : super(key: key);
+
+  final CurrentVoteData currentVoteData;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Expanded(child: WinnersList()),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 10),
+          child: RoundedButton(
+              color: Colors.blueAccent,
+              text: 'Done',
+              onPressed: () async {
+                Navigator.pop(context);
+              }),
+        ),
+      ],
+    );
+  }
+}
+
+class VoteChoices extends StatelessWidget {
+  const VoteChoices({
+    Key? key,
+    required this.currentVoteData,
+  }) : super(key: key);
+
+  final CurrentVoteData currentVoteData;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        // Choices List:
+        Expanded(
+          child: RadioChoicesList(),
+        ),
+        // Buttons Row:
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 10),
+          child: Row(
+            // mainAxisSize: MainAxisSize.max,
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              // Submit Button
+              Expanded(
+                child: BlocListener<User, UserStates>(
+                  listener: (context, userState) {
+                    if (userState is UserSubmitChoicesState) {
+                      Navigator.pop(context);
+                    }
+                  },
+                  child: RoundedButton(
+                      color: Colors.blueAccent,
+                      text: 'Submit',
+                      onPressed: () async {
+                        // currentUser.submitChoices(currentVoteData.voteId,
+                        //     currentVoteData.userSelection);
+                        await User.get(context).submitChoices(
+                            currentVoteData.voteId,
+                            currentVoteData.userSelection);
+                      }),
+                ),
+              ),
+              SizedBox(
+                width: 10,
+              ),
+              Expanded(
+                child: RoundedButton(
+                    color: Colors.blueAccent,
+                    text: 'Cancel',
+                    onPressed: () {
+                      Navigator.pop(context);
+                    }),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }
