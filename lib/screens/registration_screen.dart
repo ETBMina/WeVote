@@ -87,7 +87,15 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                 height: 24.0,
               ),
               BlocConsumer<User, UserStates>(
-                listener: (context, userState) {},
+                listener: (context, userState) {
+                  if (userState is UserRegisteredState) {
+                    setState(() {
+                      showSpinner = false;
+                    });
+                    print('going to push');
+                    Navigator.pushNamed(context, VotesScreen.id);
+                  }
+                },
                 builder: (context, userState) {
                   User currentUser = User.get(context);
                   return RoundedButton(
@@ -103,10 +111,6 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                             password: password,
                             fullName: fullName)) {
                           print('User registered successfully');
-                          Navigator.pushNamed(context, VotesScreen.id);
-                          setState(() {
-                            showSpinner = false;
-                          });
                         } else {
                           print('Not registered');
                         }
